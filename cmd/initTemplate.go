@@ -189,7 +189,7 @@ public:
 
 		for _, file := range fileSlice {
 
-			fmt.Println("", file)
+			fmt.Println("filename:", file)
 
 			if file == "launch.json" {
 
