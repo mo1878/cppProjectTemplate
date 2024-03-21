@@ -134,9 +134,9 @@ public:
 		// Creating the src Directory
 		dir1 := os.MkdirAll(sourceDir, 0777)
 		if err != nil {
-			log.Fatal("could not create source directory", err)
+			log.Fatal("could not create source directory", dir1)
 		} else {
-			fmt.Println("created source directory", dir1)
+			fmt.Println("created the src directory")
 		}
 
 		// Creating the main.cpp file
