@@ -1,13 +1,14 @@
 package core
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 type project struct {
-	name []string
+	projectName string
 }
 
 type subDirectory struct {
@@ -19,14 +20,18 @@ type templateFile struct {
 	subDir   subDirectory
 }
 
-func (p *project) newProjectDirectory() (string, error) {
+type textCopy struct {
+	sourceFile os.File
+}
 
-	err := os.Mkdir(p.name[0], 0777)
+func (p *project) newProjectDirectory(projectName string) (string, error) {
+
+	err := os.Mkdir(p.projectName, 0777)
 	if err != nil {
 		return "", err
 	}
 
-	return p.name[0], nil
+	return p.projectName, nil
 }
 
 func (sD *subDirectory) newSubDirectory(parentPath string) ([]string, error) {
@@ -50,13 +55,15 @@ func (f *templateFile) newFileCreation(subDirPaths []string) []string {
 
 	subDirFiles := []string{"main.cpp", "header.h", "tasks.json", "launch.json"}
 	subDirFileMap := make(map[string][]string)
+	createdFiles := []string{}
 
 	valueIndex := 0
 	for _, key := range subDirPaths {
 
-		if key == ".vscode" {
+		if key == subDirPaths[2] {
 			subDirFileMap[key] = append(subDirFileMap[key], subDirFiles[valueIndex:valueIndex+2]...)
 			valueIndex += 2
+			fmt.Printf("Map: %v ", subDirFileMap[key])
 		} else {
 			subDirFileMap[key] = append(subDirFileMap[key], subDirFiles[valueIndex])
 			valueIndex++
@@ -64,5 +71,52 @@ func (f *templateFile) newFileCreation(subDirPaths []string) []string {
 
 	}
 
-	return subDirPaths
+	for dirPath, files := range subDirFileMap {
+
+		for _, fileName := range files {
+			fullPath := filepath.Join(dirPath, fileName)
+			file, err := os.Create(fullPath)
+			if err != nil {
+				log.Printf("Failed to create %s: %v\n", fullPath, err)
+				continue
+			}
+			defer file.Close()
+			createdFiles = append(createdFiles, fullPath)
+		}
+
+	}
+
+	return createdFiles
+}
+
+func (ct *textCopy) insertBoilerPlateCode(createdFilePaths []string) (bool, error) {
+
+	boilerPlateTargetDir := "./boilerPlateCode"
+
+	files, err := os.ReadDir(boilerPlateTargetDir)
+	if err != nil {
+		log.Printf("Error reading Directory %v", boilerPlateTargetDir)
+	}
+
+	for _, file := range files {
+
+		fileName := file.Name()
+
+		text, err := os.ReadFile(fileName)
+		if err != nil {
+			log.Printf("Failed to read file: %v", fileName)
+		}
+
+		for _, path := range createdFilePaths {
+
+			err := os.WriteFile(path, text, 0777)
+			if err != nil {
+				log.Printf("Failed to write to: %v", path)
+			}
+
+		}
+
+	}
+
+	return true, nil
 }

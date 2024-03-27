@@ -1,0 +1,15 @@
+// MyClass.h
+#ifndef MYCLASS_H
+#define MYCLASS_H
+		
+class MyClass {
+private:
+	int myNumber;
+		
+public:
+	MyClass(int initialNumber); // Constructor
+	void setNumber(int newNumber); // Setter for myNumber
+	int getNumber() const; // Getter for myNumber
+};
+		
+#endif // MYCLASS_H

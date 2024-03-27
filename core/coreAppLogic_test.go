@@ -8,10 +8,10 @@ import (
 func TestProjectAndSubDirectoryCreation(t *testing.T) {
 	// Setup
 	dirName := "test_project_dir"
-	p := project{name: []string{dirName}}
+	p := project{projectName: dirName}
 
 	// Execute first function
-	projectDir, err := p.newProjectDirectory()
+	projectDir, err := p.newProjectDirectory(dirName)
 	if err != nil {
 		t.Fatalf("Failed to create new project directory: %v", err)
 	}
@@ -37,6 +37,7 @@ func TestProjectAndSubDirectoryCreation(t *testing.T) {
 		}
 	}
 
+	// Setup for third function
 	f := templateFile{}
 	files := f.newFileCreation(subDirs)
 
@@ -51,6 +52,14 @@ func TestProjectAndSubDirectoryCreation(t *testing.T) {
 		}
 	}
 
-	// // Cleanup
-	// defer os.RemoveAll(dirName)
+	ct := textCopy{}
+	success, err := ct.insertBoilerPlateCode(files)
+	if err != nil {
+		t.Fatalf("Function failed: %v", err)
+	} else {
+		t.Errorf("Files were not written to successfuly: %t", success)
+	}
+
+	// Cleanup
+	defer os.RemoveAll(dirName)
 }
