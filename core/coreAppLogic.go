@@ -60,7 +60,6 @@ func (f *templateFile) newFileCreation(subDirPaths []string) []string {
 		} else {
 			subDirFileMap[key] = append(subDirFileMap[key], subDirFiles[valueIndex])
 			valueIndex++
-
 		}
 
 	}
