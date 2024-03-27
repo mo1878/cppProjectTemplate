@@ -117,7 +117,7 @@ public:
 
 		dotVsCodePath := ".vscode"
 		launchJSON := "launch.json"
-		taskJSON := "task.json"
+		taskJSON := "tasks.json"
 
 		sourceDir := filepath.Join(args[0], sourcePath)
 		defaultSourceFile := filepath.Join(sourceDir, mainCpp)
