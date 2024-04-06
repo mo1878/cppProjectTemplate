@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -8,10 +9,10 @@ import (
 func TestProjectAndSubDirectoryCreation(t *testing.T) {
 	// Setup
 	dirName := "test_project_dir"
-	p := project{projectName: dirName}
+	p := Project{ProjectName: dirName}
 
 	// Execute first function
-	projectDir, err := p.newProjectDirectory(dirName)
+	projectDir, err := p.NewProjectDirectory(dirName)
 	if err != nil {
 		t.Fatalf("Failed to create new project directory: %v", err)
 	}
@@ -23,8 +24,8 @@ func TestProjectAndSubDirectoryCreation(t *testing.T) {
 	}
 
 	// Setup for second function
-	sD := subDirectory{}                           // Adjust according to your actual struct fields
-	subDirs, err := sD.newSubDirectory(projectDir) // Adjust based on the actual signature and expected return
+	sD := SubDirectory{}                           // Adjust according to your actual struct fields
+	subDirs, err := sD.NewSubDirectory(projectDir) // Adjust based on the actual signature and expected return
 
 	if err != nil {
 		t.Fatalf("Failed to create subdirectory within project directory: %v", err)
@@ -38,8 +39,8 @@ func TestProjectAndSubDirectoryCreation(t *testing.T) {
 	}
 
 	// Setup for third function
-	f := templateFile{}
-	files := f.newFileCreation(subDirs)
+	f := TemplateFile{}
+	files := f.NewFileCreation(subDirs)
 
 	if err != nil {
 		t.Fatalf("Failed to create files within project directory: %v", err)
@@ -52,13 +53,12 @@ func TestProjectAndSubDirectoryCreation(t *testing.T) {
 		}
 	}
 
-	ct := textCopy{}
-	success, err := ct.insertBoilerPlateCode(files)
+	ct := TextCopy{}
+	success, err := ct.InsertBoilerPlateCode(files)
 	if err != nil {
 		t.Fatalf("Function failed: %v", err)
-	} else {
-		t.Errorf("Files were not written to successfuly: %t", success)
 	}
+	fmt.Println(success)
 
 	// Cleanup
 	defer os.RemoveAll(dirName)

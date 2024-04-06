@@ -1,7 +1,8 @@
 {
     "configurations": [
+
     {
-      "name": "Debug coreAppLogic",
+      "name": "Debug main",
       "type": "go",
       "request": "launch",
       "mode": "auto",

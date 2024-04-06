@@ -5,42 +5,43 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-type project struct {
-	projectName string
+type Project struct {
+	ProjectName string
 }
 
-type subDirectory struct {
+type SubDirectory struct {
 	name []string
 }
 
-type templateFile struct {
-	fileName string
-	subDir   subDirectory
+type TemplateFile struct {
+	file   string
+	subDir SubDirectory
 }
 
-type textCopy struct {
+type TextCopy struct {
 	sourceFile os.File
 }
 
-func (p *project) newProjectDirectory(projectName string) (string, error) {
+func (p *Project) NewProjectDirectory(ProjectName string) (string, error) {
 
-	err := os.Mkdir(p.projectName, 0777)
+	err := os.Mkdir(p.ProjectName, 0777)
 	if err != nil {
 		return "", err
 	}
 
-	return p.projectName, nil
+	return p.ProjectName, nil
 }
 
-func (sD *subDirectory) newSubDirectory(parentPath string) ([]string, error) {
+func (sD *SubDirectory) NewSubDirectory(ParentPath string) ([]string, error) {
 
 	subDirNames := []string{"src", "headers", ".vscode"}
 
 	subDirPathSlice := []string{}
 	for _, dirName := range subDirNames {
-		subDirectoryPath := filepath.Join(parentPath, dirName)
+		subDirectoryPath := filepath.Join(ParentPath, dirName)
 		err := os.Mkdir(subDirectoryPath, 0777)
 		if err != nil {
 			log.Fatalf("Failed to create subdirectory %s: %v", subDirectoryPath, err)
@@ -51,16 +52,16 @@ func (sD *subDirectory) newSubDirectory(parentPath string) ([]string, error) {
 	return subDirPathSlice, nil
 }
 
-func (f *templateFile) newFileCreation(subDirPaths []string) []string {
+func (f *TemplateFile) NewFileCreation(SubDirPaths []string) []string {
 
-	subDirFiles := []string{"main.cpp", "header.h", "tasks.json", "launch.json"}
+	subDirFiles := []string{"main.cpp", "headers.h", "tasks.json", "launch.json"}
 	subDirFileMap := make(map[string][]string)
 	createdFiles := []string{}
 
 	valueIndex := 0
-	for _, key := range subDirPaths {
+	for _, key := range SubDirPaths {
 
-		if key == subDirPaths[2] {
+		if key == SubDirPaths[2] {
 			subDirFileMap[key] = append(subDirFileMap[key], subDirFiles[valueIndex:valueIndex+2]...)
 			valueIndex += 2
 			fmt.Printf("Map: %v ", subDirFileMap[key])
@@ -73,8 +74,8 @@ func (f *templateFile) newFileCreation(subDirPaths []string) []string {
 
 	for dirPath, files := range subDirFileMap {
 
-		for _, fileName := range files {
-			fullPath := filepath.Join(dirPath, fileName)
+		for _, file := range files {
+			fullPath := filepath.Join(dirPath, file)
 			file, err := os.Create(fullPath)
 			if err != nil {
 				log.Printf("Failed to create %s: %v\n", fullPath, err)
@@ -89,34 +90,50 @@ func (f *templateFile) newFileCreation(subDirPaths []string) []string {
 	return createdFiles
 }
 
-func (ct *textCopy) insertBoilerPlateCode(createdFilePaths []string) (bool, error) {
+func (ct *TextCopy) InsertBoilerPlateCode(CreatedFilePaths []string) (bool, error) {
 
-	boilerPlateTargetDir := "./boilerPlateCode"
+	boilerPlateNamesToPath := make(map[string]string)
+	targetToBoilerPlateMatches := make(map[string]string)
+	boilerPlateTargetDir := "../boilerPlateCode/"
 
-	files, err := os.ReadDir(boilerPlateTargetDir)
+	// CREATE A MAP OF TARGETFILES:TESTFILES
+
+	textFiles, err := os.ReadDir(boilerPlateTargetDir)
 	if err != nil {
 		log.Printf("Error reading Directory %v", boilerPlateTargetDir)
 	}
 
-	for _, file := range files {
+	for _, file := range textFiles {
 
 		fileName := file.Name()
+		nameWithouExtension := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+		boilerPlateNamesToPath[nameWithouExtension] = filepath.Join(boilerPlateTargetDir, fileName)
+	}
 
-		text, err := os.ReadFile(fileName)
-		if err != nil {
-			log.Printf("Failed to read file: %v", fileName)
+	for _, targetPath := range CreatedFilePaths {
+		targetFileName := filepath.Base(targetPath)
+		targetNameWithoutExtension := strings.TrimSuffix(targetFileName, filepath.Ext(targetFileName))
+
+		if boilerPlatePath, exists := boilerPlateNamesToPath[targetNameWithoutExtension]; exists {
+			targetToBoilerPlateMatches[targetPath] = boilerPlatePath
+		}
+	}
+
+	// READ DATA IN TEXT FILE AND WRITE TO TARGETFILE FOR EACH LOOP
+	for key, value := range targetToBoilerPlateMatches {
+
+		text, ReadErr := os.ReadFile(value)
+		if ReadErr != nil {
+			log.Printf("Failed to Read from Boiler Plate File")
 		}
 
-		for _, path := range createdFilePaths {
-
-			err := os.WriteFile(path, text, 0777)
-			if err != nil {
-				log.Printf("Failed to write to: %v", path)
-			}
-
+		WriteErr := os.WriteFile(key, text, 0777)
+		if err != nil {
+			log.Printf("Failed to write to: %v", WriteErr)
 		}
 
 	}
 
 	return true, nil
+
 }
