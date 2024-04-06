@@ -4,7 +4,7 @@ This is a command line tool built in Golang using Cobra.
 
 The main purpose of this CLI is to create a project structure that can be used to build C++ applications on VSCode. 
 
-While trying to learn C++ I noticed the lack of a general template that could be used when learning C++ or building C++ applications on VSCode for MacOS.
+While learning C++ I noticed the lack of a general template that could be used when learning C++ or building C++ applications on VSCode for MacOS.
 
 So I thought it would be a great Idea to learn how this can be done in another language I'm trying to learn - Golang.
 
