@@ -94,7 +94,7 @@ func (ct *TextCopy) InsertBoilerPlateCode(CreatedFilePaths []string) (bool, erro
 
 	boilerPlateNamesToPath := make(map[string]string)
 	targetToBoilerPlateMatches := make(map[string]string)
-	boilerPlateTargetDir := "../boilerPlateCode/"
+	boilerPlateTargetDir := "../core/boilerPlateCode/"
 
 	// CREATE A MAP OF TARGETFILES:TESTFILES
 
